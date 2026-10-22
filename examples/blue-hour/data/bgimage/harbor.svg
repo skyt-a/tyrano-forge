@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#152d50"/><stop offset=".65" stop-color="#52748c"/><stop offset="1" stop-color="#f0af82"/></linearGradient><linearGradient id="sea" x2="0" y2="1"><stop stop-color="#365b73"/><stop offset="1" stop-color="#102a43"/></linearGradient><radialGradient id="glow"><stop stop-color="#ffdea4" stop-opacity=".6"/><stop offset="1" stop-color="#ffdea4" stop-opacity="0"/></radialGradient></defs>
+<path fill="url(#sky)" d="M0 0h1280v720H0z"/><circle cx="913" cy="235" r="170" fill="url(#glow)"/><circle cx="913" cy="235" r="40" fill="#f8d7a6"/>
+<g fill="#d9e5eb" opacity=".7"><circle cx="152" cy="93" r="2"/><circle cx="376" cy="171" r="1.5"/><circle cx="668" cy="73" r="2"/><circle cx="1090" cy="114" r="1.8"/><circle cx="1172" cy="268" r="1.5"/></g>
+<path fill="#29485f" d="M0 365l145-65 112 28 117-66 177 70 132-36 154 64 176-61 128 49 139-20v97H0z"/><path fill="url(#sea)" d="M0 393h1280v327H0z"/>
+<g fill="none" stroke="#88aeb9" stroke-opacity=".35" stroke-width="3"><path d="M20 431h160m54 0h210m190 0h280m70 0h220M84 472h270m204 0h160m134 0h280M0 513h148m78 0h364m162 0h210m160 0h158"/></g>
+<path fill="#11283a" d="M0 567l487-60 445 213H0z"/><path fill="#1c394a" d="M0 567l487-60 22 16L0 590z"/>
+<path stroke="#142f43" stroke-width="14" d="M35 551v-99m163 75v-103m162 83V398"/><path fill="none" stroke="#142f43" stroke-width="7" d="M35 470l163-29 162-25"/>
+<path fill="#132c40" d="M1063 357h104l-15-15h-74zM1105 343V188h24v155z"/><path fill="#f6c78b" d="M1108 198h18v37h-18z"/><path fill="#17354b" d="M1098 188h40l-20-27z"/>
+<g fill="#f9d39a"><circle cx="35" cy="447" r="7"/><circle cx="198" cy="419" r="7"/><circle cx="360" cy="393" r="7"/></g>
+<text x="55" y="70" fill="#d8e6eb" font-family="sans-serif" font-size="16" letter-spacing="6">BLUE HOUR / HARBOR</text>
+</svg>

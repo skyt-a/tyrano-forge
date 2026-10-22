@@ -1,0 +1,15 @@
+node_modules/
+dist/
+export/
+icons/
+.backups/
+.claude/
+editor_config.json
+pnpm-lock.yaml
+.DS_Store
+.codex/
+.env
+.env.*
+!.env.example
+*.log
+coverage/

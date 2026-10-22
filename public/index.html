@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TyranoForge</title>
+    <link rel="stylesheet" href="/css/app.css">
+  </head>
+  <body>
+    <div class="shell">
+      <!-- activity rail -->
+      <aside class="rail">
+        <div class="rail-logo" title="TyranoForge">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M5 3h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm8 1v5h5"/><path fill="none" stroke="var(--rail-bg)" stroke-width="1.6" d="M8 13h8M8 17h5"/></svg>
+        </div>
+        <nav class="rail-nav">
+          <button data-view="editor" title="シナリオエディタ ⌘1">
+            <svg viewBox="0 0 24 24"><path d="M4 5h16M4 9h16M4 13h10"/><path d="m16.5 14.5 4 4-2.5 2.5-4-4v-2.5z"/></svg>
+          </button>
+          <button data-view="assets" title="素材 ⌘2">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m5 17 4.5-4.5 3 3L16 12l3 5"/></svg>
+          </button>
+          <button data-view="flow" title="分岐・フロー ⌘3">
+            <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="12" r="2.4"/><path d="M8 7.5c4 1.5 4 7.5 8 4.5M8.2 17c4-1.5 3.8-6.5 7.4-4.6"/></svg>
+          </button>
+          <button data-view="code" title="KS本文 ⌘4">
+            <svg viewBox="0 0 24 24"><path d="m9 8-4 4 4 4M15 8l4 4-4 4"/></svg>
+          </button>
+          <button data-view="diagnostics" title="診断 ⌘5">
+            <svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17.2v.3"/></svg>
+          </button>
+          <button data-view="settings" title="プロジェクト設定 ⌘6">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>
+          </button>
+          <button data-view="build" title="ゲーム書き出し ⌘7">
+            <svg viewBox="0 0 24 24"><path d="M12 3v11M8 10l4 4 4-4"/><path d="M4 17v3h16v-3"/></svg>
+          </button>
+          <button data-view="home" title="プロジェクト一覧 ⌘8">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>
+          </button>
+        </nav>
+        <div class="rail-bottom">
+          <button id="reloadBtn" title="再読込">
+            <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 1 2.2 5.3"/><path d="M4 21v-5h5"/></svg>
+          </button>
+          <button id="historyBtn" title="保存履歴">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
+          </button>
+          <button id="themeBtn" title="テーマ切替">
+            <svg viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <div class="frame">
+        <!-- title bar -->
+        <header class="titlebar">
+          <div class="crumbs">
+            <button id="crumbProject" class="crumb" title="プロジェクトを切り替え">
+              <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span class="crumb-label">—</span>
+              <span class="crumb-caret">▾</span>
+            </button>
+            <span class="crumb-sep">/</span>
+            <button id="crumbScenario" class="crumb" title="シナリオを開く (⌘P)">
+              <span class="crumb-label">—</span>
+              <span class="crumb-caret">▾</span>
+            </button>
+            <button id="newScenarioBtn" class="icon-btn" title="新規シナリオ">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <div class="transport">
+            <button id="playFileBtn" class="play-btn" title="ファイル先頭からプレビュー">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M8 5.5v13l11-6.5z"/></svg>
+            </button>
+            <button id="stopBtn" class="play-btn stop" title="プレビューを停止">
+              <svg viewBox="0 0 24 24"><rect fill="currentColor" stroke="none" x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+            </button>
+            <select id="labelSelect" title="開始ラベル"></select>
+            <button id="playLabelBtn" class="chip" title="選択したラベルから再生">ラベルから</button>
+            <span class="transport-sep"></span>
+            <button id="syncBtn" class="chip" title="プレビューの進行に合わせてタイムラインを追従">同期</button>
+            <button id="autoBtn" class="chip" title="編集を自動でプレビューへ反映">自動反映</button>
+            <button id="layoutBtn" class="chip" title="立ち絵の配置をドラッグで編集">配置</button>
+            <button id="layoutFetchBtn" class="chip hidden" title="立ち絵枠を再取得">取得</button>
+            <button id="layoutSaveBtn" class="chip hidden" title="配置を保存">配置保存</button>
+          </div>
+
+          <div class="title-right">
+            <span id="saveState" class="save-state" data-kind="idle">—</span>
+            <button id="saveBtn" class="btn primary">保存</button>
+          </div>
+        </header>
+
+        <!-- project switcher dropdown -->
+        <div id="projectMenu" class="project-menu hidden">
+          <input id="projectMenuSearch" class="search" placeholder="プロジェクトを検索…">
+          <div id="projectMenuList" class="pm-list"></div>
+          <div class="pm-footer">
+            <button id="projectMenuHome" class="btn ghost">一覧を開く</button>
+            <button id="projectMenuNew" class="btn">＋ 新規プロジェクト</button>
+          </div>
+        </div>
+
+        <main class="viewport">
+          <!-- editor -->
+          <section id="view-editor" class="view active">
+            <aside id="scenarioSidebar" class="scenario-sidebar">
+              <button id="scenarioExpandBtn" class="ss-rail" title="シナリオ一覧をひらく">
+                <svg viewBox="0 0 24 24"><path d="M4 5h16M4 9h16M4 13h10"/></svg>
+                <span class="ss-rail-label">シナリオ</span>
+              </button>
+              <div class="ss-body">
+                <div class="ss-head">
+                  <span class="ss-title">シナリオ</span>
+                  <span id="scenarioCount" class="ss-count"></span>
+                  <span class="spacer"></span>
+                  <button id="scenarioNewBtn" class="icon-btn" title="新規シナリオ">
+                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                  </button>
+                  <button id="scenarioCollapseBtn" class="icon-btn" title="一覧をたたむ">
+                    <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>
+                  </button>
+                </div>
+                <input id="scenarioFilter" class="search" placeholder="ファイル名で絞り込み" autocomplete="off" spellcheck="false">
+                <div id="scenarioList" class="ss-list"></div>
+              </div>
+            </aside>
+            <div id="splitScenario" class="splitter splitter-v"></div>
+            <aside id="palette" class="palette">
+              <input id="paletteSearch" class="search" placeholder="コンポーネント検索">
+              <div class="palette-groups"></div>
+            </aside>
+            <div id="splitPalette" class="splitter splitter-v"></div>
+            <div class="timeline-main">
+              <div class="pane-toolbar">
+                <input id="timelineSearch" class="search" placeholder="行検索">
+                <select id="eventFilter">
+                  <option value="">すべて</option>
+                  <option value="tag">タグ</option>
+                  <option value="text">本文</option>
+                  <option value="speaker">話者</option>
+                  <option value="label">ラベル</option>
+                </select>
+              </div>
+              <div id="timeline" class="timeline"></div>
+            </div>
+            <div id="splitDock" class="splitter splitter-v"></div>
+            <aside class="dock">
+              <section class="dock-preview">
+                <header class="dock-head">
+                  <button id="previewCollapseBtn" class="icon-btn" title="プレビューをたたむ">▾</button>
+                  <span class="dock-title">プレビュー</span>
+                  <span id="previewState" class="dock-state">未起動</span>
+                  <div class="preview-volume" title="プレビューの音量">
+                    <button id="previewMuteBtn" class="icon-btn" title="ミュート">
+                      <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path class="vol-wave" d="M16 9a4 4 0 0 1 0 6M18.5 7a7 7 0 0 1 0 10"/></svg>
+                    </button>
+                    <input id="previewVolume" class="volume-slider" type="range" min="0" max="100" step="1" value="100" title="プレビュー音量" aria-label="プレビュー音量">
+                    <span id="previewVolumeValue" class="volume-value">100</span>
+                  </div>
+                  <button id="theaterBtn" class="icon-btn" title="シアターモード">
+                    <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                  </button>
+                </header>
+                <div id="previewStage" class="preview-stage">
+                  <iframe id="previewFrame" title="Tyrano preview" sandbox="allow-scripts allow-same-origin" referrerpolicy="origin"></iframe>
+                  <div id="previewOverlay" aria-hidden="true"></div>
+                  <div class="preview-placeholder">
+                    <button id="previewPlaceholderBtn" class="preview-play">
+                      <svg viewBox="0 0 24 24" width="30" height="30"><path fill="currentColor" d="M8 5.5v13l11-6.5z"/></svg>
+                    </button>
+                    <div class="mini">クリックで選択行からプレビュー</div>
+                  </div>
+                </div>
+              </section>
+              <div id="splitDockPreview" class="splitter splitter-h"></div>
+              <section id="inspector" class="inspector"></section>
+            </aside>
+          </section>
+
+          <!-- assets -->
+          <section id="view-assets" class="view">
+            <aside class="asset-nav">
+              <div id="assetKinds" class="asset-kinds"></div>
+            </aside>
+            <aside id="assetFolders" class="asset-folders"></aside>
+            <div class="asset-main">
+              <div class="pane-toolbar">
+                <input id="assetSearch" class="search" placeholder="素材検索">
+                <button id="useAssetBtn" class="btn">選択素材を挿入</button>
+                <span class="mini">Finder からドラッグ＆ドロップで追加できます</span>
+              </div>
+              <div id="assetGrid" class="asset-grid"></div>
+              <div id="mediaBar" class="media-bar hidden">
+                <button id="mediaPlayBtn" class="icon-btn media-btn">⏸</button>
+                <span id="mediaName" class="media-name"></span>
+                <input id="mediaSeek" type="range" min="0" max="1000" value="0">
+                <span id="mediaTime" class="mono mini">0:00 / 0:00</span>
+                <button id="mediaStopBtn" class="icon-btn media-btn" title="停止">✕</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- flow -->
+          <section id="view-flow" class="view">
+            <div id="flowView" class="scroll-view"></div>
+          </section>
+
+          <!-- raw ks -->
+          <section id="view-code" class="view">
+            <div class="code-main">
+              <div class="pane-toolbar">
+                <span id="rawFileName" class="mono mini"></span>
+                <span id="rawLineState" class="mini">1行目</span>
+                <span id="rawDiagState" class="mini"></span>
+                <span class="spacer"></span>
+                <button id="rawJumpTimelineBtn" class="btn ghost">この行をタイムラインで表示</button>
+              </div>
+              <div class="code-editor-wrap">
+                <div class="code-editor-stack codemirror-stack">
+                  <div id="rawEditor" class="ks-code-editor"></div>
+                </div>
+              </div>
+              <div id="rawFind" class="raw-find hidden" role="search" aria-label="KS本文を検索">
+                <input id="rawFindInput" type="search" placeholder="KS本文を検索" autocomplete="off" spellcheck="false" aria-label="検索語">
+                <span id="rawFindState" class="raw-find-state" aria-live="polite">0件</span>
+                <button id="rawFindPrev" class="icon-btn raw-find-btn" type="button" title="前を検索（Shift+Enter）" aria-label="前を検索">↑</button>
+                <button id="rawFindNext" class="icon-btn raw-find-btn" type="button" title="次を検索（Enter）" aria-label="次を検索">↓</button>
+                <button id="rawFindClose" class="icon-btn raw-find-btn" type="button" title="閉じる（Esc）" aria-label="検索を閉じる">✕</button>
+              </div>
+              <div id="rawDiagBar" class="code-diag-bar hidden"></div>
+            </div>
+          </section>
+
+          <!-- diagnostics -->
+          <section id="view-diagnostics" class="view">
+            <div id="diagnosticsView" class="scroll-view"></div>
+          </section>
+
+          <!-- settings -->
+          <section id="view-settings" class="view">
+            <div id="settingsView" class="scroll-view narrow"></div>
+          </section>
+
+          <!-- build -->
+          <section id="view-build" class="view">
+            <div id="buildView" class="scroll-view narrow"></div>
+          </section>
+
+          <!-- home / projects -->
+          <section id="view-home" class="view">
+            <div id="homeView" class="scroll-view narrow"></div>
+          </section>
+        </main>
+
+        <footer class="status">
+          <span id="statusLocation" class="status-seg mono"></span>
+          <span id="statusMessage" class="status-seg grow">起動中…</span>
+          <span id="statusDiag" class="status-seg"></span>
+        </footer>
+      </div>
+    </div>
+
+    <!-- quick open -->
+    <div id="quickOpen" class="overlay hidden">
+      <div class="quick-open">
+        <div id="quickOpenTabs" class="qo-tabs">
+          <button data-mode="files" class="active">シナリオ</button>
+          <button data-mode="search">全文検索</button>
+          <span class="qo-hint">↑↓ 移動 / Enter 開く / Tab 切替</span>
+        </div>
+        <input id="quickOpenInput" autocomplete="off" spellcheck="false">
+        <div id="quickOpenResults" class="qo-results"></div>
+      </div>
+    </div>
+
+    <!-- asset picker -->
+    <div id="assetPickerModal" class="overlay hidden">
+      <div class="modal-window picker-window">
+        <header class="modal-head">
+          <div id="assetPickerTitle" class="modal-title">素材を選択</div>
+          <button id="assetPickerClose" class="icon-btn">✕</button>
+        </header>
+        <div class="picker-toolbar">
+          <input id="assetPickerSearch" class="search" placeholder="検索…">
+        </div>
+        <div class="picker-body">
+          <aside id="assetPickerFolders" class="picker-folders"></aside>
+          <div id="assetPickerGrid" class="picker-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- history -->
+    <div id="historyModal" class="overlay hidden">
+      <div class="modal-window">
+        <header class="modal-head">
+          <div>
+            <div class="modal-title">保存履歴</div>
+            <div id="historySubtitle" class="modal-subtitle"></div>
+          </div>
+          <button id="historyClose" class="icon-btn">✕</button>
+        </header>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </div>
+
+    <!-- new project -->
+    <div id="newProjectModal" class="overlay hidden">
+      <div class="modal-window small">
+        <header class="modal-head">
+          <div class="modal-title">新規プロジェクト</div>
+          <button id="npCancel" class="icon-btn">✕</button>
+        </header>
+        <div class="modal-body form-grid">
+          <div class="field">
+            <label>プロジェクト名（フォルダ名・半角推奨）</label>
+            <input id="npName" placeholder="my_novel">
+          </div>
+          <div class="field">
+            <label>ゲームタイトル</label>
+            <input id="npTitle" placeholder="ノベルゲームのタイトル">
+          </div>
+          <div class="field">
+            <label>フォルダ（空欄でルート直下 / 新しい名前も可）</label>
+            <input id="npFolder" list="npFolderList" placeholder="例: 習作">
+            <datalist id="npFolderList"></datalist>
+          </div>
+          <div class="mini">TyranoBuilder と同じスケルトンから作成し、そのまま TyranoBuilder でも開けます。</div>
+          <div class="button-row">
+            <button id="npCreate" class="btn primary">作成する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- asset upload -->
+    <div id="uploadModal" class="overlay hidden">
+      <div class="modal-window">
+        <header class="modal-head">
+          <div>
+            <div class="modal-title">素材を追加</div>
+            <div id="uploadDest" class="modal-subtitle"></div>
+          </div>
+          <button id="uploadCancel" class="icon-btn">✕</button>
+        </header>
+        <div class="modal-body">
+          <div id="uploadRows" class="upload-rows"></div>
+          <div class="button-row upload-actions">
+            <label class="check-label"><input type="checkbox" id="uploadOverwrite"> 同名ファイルを上書き</label>
+            <span class="spacer"></span>
+            <button id="uploadRun" class="btn primary">追加する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- video preview -->
+    <div id="videoModal" class="overlay hidden">
+      <div class="modal-window video-window">
+        <header class="modal-head">
+          <div id="videoModalTitle" class="modal-title mono"></div>
+          <button id="videoModalClose" class="icon-btn">✕</button>
+        </header>
+        <div class="video-body">
+          <video id="videoPlayer" controls playsinline></video>
+        </div>
+      </div>
+    </div>
+
+    <!-- new scenario -->
+    <div id="newScenarioModal" class="overlay hidden">
+      <div class="modal-window small">
+        <header class="modal-head">
+          <div class="modal-title">新規シナリオ</div>
+          <button id="nsCancel" class="icon-btn">✕</button>
+        </header>
+        <div class="modal-body form-grid">
+          <div class="field">
+            <label>ファイル名（.ks は自動で付きます）</label>
+            <input id="nsName" placeholder="new_scene" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="mini">テキストブロック入りのテンプレートで作成し、すぐに編集を開始できます。</div>
+          <div class="button-row">
+            <button id="nsCreate" class="btn primary">作成する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toasts" class="toasts"></div>
+
+    <script src="/js/ks-codemirror.js"></script>
+    <script src="/js/schema.js"></script>
+    <script src="/js/core.js"></script>
+    <script src="/js/ks-highlight.js"></script>
+    <script src="/js/editor.js"></script>
+    <script src="/js/preview.js"></script>
+    <script src="/js/panels.js"></script>
+    <script src="/js/studio.js"></script>
+  </body>
+</html>

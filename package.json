@@ -1,0 +1,44 @@
+{
+  "name": "tyranoforge",
+  "productName": "TyranoForge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A TyranoScript visual novel editor compatible with TyranoBuilder projects.",
+  "type": "commonjs",
+  "main": "electron/main.js",
+  "scripts": {
+    "build:editor": "esbuild public/js/ks-codemirror-entry.js --bundle --format=iife --global-name=KsCodeMirrorBundle --outfile=public/js/ks-codemirror.js --minify",
+    "preapp": "npm run build:editor",
+    "app": "electron .",
+    "predist": "npm run build:editor",
+    "dist": "electron-packager . \"TyranoForge\" --platform=darwin --arch=arm64 --out=dist --overwrite --app-bundle-id=com.tyranoforge.app --ignore=\"^/\\.backups\" --ignore=\"^/export\" --ignore=\"^/dist\" --ignore=\"^/ios\" --ignore=\"^/\\.codex\" --ignore=\"^/node_modules/\\.(ignored|pnpm)\" --ignore=\"^/\\.claude\" --ignore=\"^/editor_config\\.json$\" --ignore=\"^/pnpm-lock\\.yaml$\"",
+    "start": "node server.js",
+    "diagnostics": "node server.js --check",
+    "syntax": "npm run build:editor && node --check server.js && node --check electron/main.js && node --check lib/project-paths.js && node --check lib/project.js && node --check lib/ks-parser.js && node --check lib/studio.js && node --check lib/tyrano-tatie.js && node --check lib/http-security.js && node --check lib/navigation.js && node --check lib/window-security.js && node --check scripts/security-test.js && node --check scripts/capture-docs.js && node --check scripts/create-demo.js && node --check scripts/check.js && node --check public/js/schema.js && node --check public/js/core.js && node --check public/js/ks-highlight.js && node --check public/js/ks-highlight-worker.js && node --check public/js/editor.js && node --check public/js/preview.js && node --check public/js/panels.js && node --check public/js/studio.js && node --check scripts/smoke-test.js && node --check scripts/editor-perf-test.js && node -e \"const{previewBridgeScript}=require('./server.js');new Function(previewBridgeScript());console.log('preview bridge syntax OK')\"",
+    "smoke": "node scripts/smoke-test.js",
+    "perf:editor": "node scripts/editor-perf-test.js",
+    "check": "node scripts/check.js",
+    "security": "node scripts/security-test.js",
+    "docs:screenshots": "electron scripts/capture-docs.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/search": "^6.7.1",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.6",
+    "@electron/packager": "^20.0.2",
+    "@lezer/highlight": "^1.2.3",
+    "codemirror": "^6.0.2",
+    "tyrano-tatie": "https://github.com/skyt-a/tyrano-tatie/archive/refs/tags/v0.2.0.tar.gz"
+  },
+  "devDependencies": {
+    "electron": "^43.8.3",
+    "esbuild": "^0.28.1"
+  }
+}
