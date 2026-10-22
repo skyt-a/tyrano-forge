@@ -11,6 +11,12 @@ const SMOKE = process.argv.includes("--smoke");
 const SMOKE_PREVIEW = (process.argv.find((arg) => arg.startsWith("--smoke-preview=")) || "").split("=")[1] || "";
 const smokeDataRoot = SMOKE ? fs.mkdtempSync(path.join(os.tmpdir(), "tyranoforge-smoke-")) : "";
 if (SMOKE) app.setPath("userData", smokeDataRoot);
+function smokeCheckpoint(phase) {
+  if (SMOKE && process.env.TYRANOFORGE_SMOKE_RESULT_FILE) {
+    fs.writeFileSync(process.env.TYRANOFORGE_SMOKE_RESULT_FILE, JSON.stringify({ ready: false, phase }));
+  }
+}
+smokeCheckpoint("starting");
 
 // パッケージ版では書き込みデータ (backups / export / 設定) を userData へ
 const DATA_ROOT = smokeDataRoot || (app.isPackaged
@@ -172,6 +178,7 @@ function createWindow() {
 
   secureWindow(mainWindow, serverInfo, url => shell.openExternal(url));
 
+  smokeCheckpoint("loading-editor");
   mainWindow.loadURL(`http://127.0.0.1:${serverInfo.port}/`);
 
   if (SMOKE) {
@@ -196,6 +203,7 @@ function createWindow() {
           })
         `);
         if (result.ready && process.env.TYRANOFORGE_SMOKE_EXPORT === "1") {
+          smokeCheckpoint("exporting-game-zip");
           const exported = await mainWindow.webContents.executeJavaScript('api("/api/build", {method:"POST", body:JSON.stringify({target:"browser", zip:true})})');
           result.exportReady = Boolean(exported.ok && exported.zipPath && fs.statSync(exported.zipPath).size > 0);
         }
@@ -327,6 +335,7 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  smokeCheckpoint("app-ready");
   try {
     const loadServer = () => require(path.join(__dirname, "..", "server.js"));
     const serverModule = SMOKE ? loadServer() : await prepareStartupProject({
@@ -354,6 +363,7 @@ app.whenReady().then(async () => {
     app.exit(1);
     return;
   }
+  smokeCheckpoint("server-ready");
   buildMenu();
   createWindow();
   app.on("activate", () => {

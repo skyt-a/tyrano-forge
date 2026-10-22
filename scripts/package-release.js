@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const os = require("os");
 const { execFileSync } = require("child_process");
 const esbuild = require("esbuild");
 
@@ -17,15 +18,28 @@ async function main() {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
   esbuild.buildSync({ entryPoints: [path.join(root, "public/js/ks-codemirror-entry.js")], bundle: true,
     format: "iife", globalName: "KsCodeMirrorBundle", outfile: path.join(root, "public/js/ks-codemirror.js"), minify: true });
+  const buildOut = platform === "darwin" ? fs.mkdtempSync(path.join(os.tmpdir(), "tyranoforge-build-")) : dist;
   const { packager } = await import("@electron/packager");
   const [folder] = await packager({
-    dir: root, name: "TyranoForge", platform, arch, out: dist, overwrite: true,
+    dir: root, name: "TyranoForge", platform, arch, out: buildOut, overwrite: true,
     appBundleId: "com.tyranoforge.app", appVersion: pkg.version,
+    osxSign: platform === "darwin" ? {
+      identity: "-", identityValidation: false, continueOnError: false,
+      preAutoEntitlements: false, preEmbedProvisioningProfile: false,
+      optionsForFile: () => ({ entitlements: ["com.apple.security.cs.allow-jit"] }),
+    } : undefined,
     win32metadata: { CompanyName: "TyranoForge contributors", ProductName: "TyranoForge" },
     ignore: [/^\/\.backups/, /^\/export/, /^\/dist/, /^\/ios/, /^\/\.codex/, /^\/\.claude/,
       /^\/node_modules\/\.(ignored|pnpm)/, /^\/editor_config\.json$/, /^\/pnpm-lock\.yaml$/,
       /^\/\.env(?:\.|$)/, /^\/docs/, /^\/examples/, /^\/scripts/, /^\/\.github/],
   });
+  if (platform === "darwin") {
+    const app = path.join(folder, "TyranoForge.app");
+    execFileSync("xattr", ["-cr", app]);
+    execFileSync("codesign", ["--verify", "--deep", "--strict", app]);
+  }
+  fs.mkdirSync(dist, { recursive: true });
+  fs.writeFileSync(path.join(dist, `packaged-${platform}-${arch}.json`), JSON.stringify({ folder }));
   const archive = path.join(dist, platform === "darwin" ? "TyranoForge-macOS-arm64.zip" : "TyranoForge-Windows-x64.zip");
   fs.rmSync(archive, { force: true });
   if (platform === "darwin") {
