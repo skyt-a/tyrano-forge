@@ -9,8 +9,11 @@ const { prepareStartupProject } = require("../lib/startup-project");
 
 const SMOKE = process.argv.includes("--smoke");
 const SMOKE_PREVIEW = (process.argv.find((arg) => arg.startsWith("--smoke-preview=")) || "").split("=")[1] || "";
-const smokeDataRoot = SMOKE ? fs.mkdtempSync(path.join(os.tmpdir(), "tyranoforge-smoke-")) : "";
-if (SMOKE) app.setPath("userData", smokeDataRoot);
+const smokeDataRoot = SMOKE ? (process.env.TYRANOFORGE_SMOKE_DATA_DIR || fs.mkdtempSync(path.join(os.tmpdir(), "tyranoforge-smoke-"))) : "";
+if (SMOKE) {
+  fs.mkdirSync(smokeDataRoot, { recursive: true });
+  app.setPath("userData", smokeDataRoot);
+}
 function smokeCheckpoint(phase) {
   if (SMOKE && process.env.TYRANOFORGE_SMOKE_RESULT_FILE) {
     fs.writeFileSync(process.env.TYRANOFORGE_SMOKE_RESULT_FILE, JSON.stringify({ ready: false, phase }));
@@ -376,5 +379,9 @@ app.on("window-all-closed", () => {
 });
 
 app.on("quit", () => {
-  if (smokeDataRoot) fs.rmSync(smokeDataRoot, { recursive: true, force: true });
+  // Chromium may still hold its files during quit on Windows. The parent
+  // package verifier cleans its temporary directory after the process exits.
+  if (smokeDataRoot) {
+    try { fs.rmSync(smokeDataRoot, { recursive: true, force: true }); } catch {}
+  }
 });

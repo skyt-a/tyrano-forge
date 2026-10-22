@@ -11,7 +11,7 @@ const platform = process.argv[2] || process.platform;
 const arch = platform === "darwin" ? "arm64" : "x64";
 const root = path.join(__dirname, "..");
 const manifest = path.join(root, "dist", `packaged-${platform}-${arch}.json`);
-const folder = fs.existsSync(manifest) ? JSON.parse(fs.readFileSync(manifest, "utf8")).folder : path.join(root, "dist", `TyranoForge-${platform}-${arch}`);
+const folder = process.env.TYRANOFORGE_PACKAGE_FOLDER || (fs.existsSync(manifest) ? JSON.parse(fs.readFileSync(manifest, "utf8")).folder : path.join(root, "dist", `TyranoForge-${platform}-${arch}`));
 const resources = platform === "darwin" ? path.join(folder, "TyranoForge.app", "Contents", "Resources") : path.join(folder, "resources");
 const binary = platform === "darwin" ? path.join(folder, "TyranoForge.app", "Contents", "MacOS", "TyranoForge") : path.join(folder, "TyranoForge.exe");
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), "tyranoforge-package-"));
@@ -29,7 +29,7 @@ try {
   fs.writeFileSync(path.join(project, "index.html"), "<!doctype html><title>Package fixture</title>");
   const resultFile = path.join(temp, "smoke-result.json");
   const result = spawnSync(binary, ["--smoke"], {
-    env: { ...process.env, TYRANOFORGE_PROJECT: project, TYRANOFORGE_SMOKE_RESULT_FILE: resultFile, TYRANOFORGE_SMOKE_EXPORT: "1" },
+    env: { ...process.env, TYRANOFORGE_PROJECT: project, TYRANOFORGE_SMOKE_RESULT_FILE: resultFile, TYRANOFORGE_SMOKE_EXPORT: "1", TYRANOFORGE_SMOKE_DATA_DIR: path.join(temp, "app-data") },
     encoding: "utf8", timeout: 120000,
   });
   if (result.error) {

@@ -26,7 +26,7 @@ async function main() {
     osxSign: platform === "darwin" ? {
       identity: "-", identityValidation: false, continueOnError: false,
       preAutoEntitlements: false, preEmbedProvisioningProfile: false,
-      optionsForFile: () => ({ entitlements: ["com.apple.security.cs.allow-jit"] }),
+      optionsForFile: () => ({ entitlements: ["com.apple.security.cs.allow-jit", "com.apple.security.cs.disable-library-validation"] }),
     } : undefined,
     win32metadata: { CompanyName: "TyranoForge contributors", ProductName: "TyranoForge" },
     ignore: [/^\/\.backups/, /^\/export/, /^\/dist/, /^\/ios/, /^\/\.codex/, /^\/\.claude/,

@@ -19,7 +19,12 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run dist:win
-      - run: node scripts/verify-package.js win32
+      - name: Verify the downloaded ZIP layout and launch
+        run: |
+          $destination = Join-Path $env:RUNNER_TEMP "tyranoforge-release"
+          Expand-Archive -LiteralPath dist/TyranoForge-Windows-x64.zip -DestinationPath $destination
+          $env:TYRANOFORGE_PACKAGE_FOLDER = Join-Path $destination "TyranoForge-win32-x64"
+          node scripts/verify-package.js win32
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: TyranoForge-Windows-x64
