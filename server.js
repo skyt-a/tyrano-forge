@@ -250,9 +250,11 @@ function parseArgs() {
     // 前回のプロジェクトが無効なら、スキャンして最初に見つかったものを開く
     const { projects } = listAllProjects();
     if (!projects.length) {
-      throw new Error(
+      const missing = new Error(
         `Tyrano プロジェクトが見つかりません。--project か TYRANOFORGE_PROJECTS_ROOT を指定してください`,
       );
+      missing.code = "PROJECT_NOT_FOUND";
+      throw missing;
     }
     result.projectRoot = assertProjectRoot(projects[0].path);
   }
@@ -1181,7 +1183,7 @@ async function routeApi(req, res, url, access) {
       folder: String(body.folder || "").replace(/^[/.]+|\.\./g, ""),
       name: String(body.name || "").trim(),
       title: String(body.title || "").trim(),
-      skeleton: loadEditorConfig().skeleton || "",
+      skeleton: loadEditorConfig().skeleton || path.resolve(config.projectRoot, "../../system/tyrano"),
     });
     config.projectRoot = assertProjectRoot(created.path);
     saveEditorConfig({ lastProject: created.path });
@@ -1348,7 +1350,9 @@ async function routeApi(req, res, url, access) {
       return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
     });
     if (!allowed) throw new Error("この場所は表示できません");
-    execFile("open", ["-R", target]);
+    if (process.platform === "win32") execFile("explorer.exe", [`/select,${target}`], () => {});
+    else if (process.platform === "darwin") execFile("open", ["-R", target], () => {});
+    else execFile("xdg-open", [fs.statSync(target).isDirectory() ? target : path.dirname(target)], () => {});
     sendJson(res, 200, { ok: true });
     return;
   }

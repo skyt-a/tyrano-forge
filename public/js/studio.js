@@ -482,7 +482,7 @@ function renderBuild() {
         <ul class="build-steps">${result.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ul>
         <div class="mini mono">${escapeHtml(result.outDir)} (${escapeHtml(formatBytes(result.fileSize))})</div>
         <div class="button-row">
-          <button id="revealBuildBtn" class="btn">Finder で表示</button>
+          <button id="revealBuildBtn" class="btn">フォルダーを開く</button>
           ${result.zipPath ? `<button id="revealZipBtn" class="btn ghost">ZIP を表示</button>` : ""}
         </div>
       </section>` : ""}
@@ -608,6 +608,11 @@ function bindShell() {
 }
 
 async function boot() {
+  if (!/Mac/.test(navigator.platform)) {
+    document.querySelectorAll("[title]").forEach(element => {
+      element.title = element.title.replace(/⌘/g, "Ctrl+");
+    });
+  }
   initUiPrefs();
   bindShell();
   bindGlobalKeys();

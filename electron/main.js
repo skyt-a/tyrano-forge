@@ -1,20 +1,22 @@
 "use strict";
 
 const path = require("path");
+const fs = require("fs");
+const os = require("os");
 const { app, BrowserWindow, Menu, dialog, shell } = require("electron");
 const { editorWebPreferences, secureWindow } = require("../lib/window-security");
-
-// パッケージ版では書き込みデータ (backups / export / 設定) を userData へ
-const DATA_ROOT = app.isPackaged
-  ? app.getPath("userData")
-  : path.join(__dirname, "..");
-process.env.TYRANOFORGE_DATA_DIR = DATA_ROOT;
-
-// env 設定後に読み込む（server.js が DATA_ROOT を参照するため）
-const { startServer } = require(path.join(__dirname, "..", "server.js"));
+const { prepareStartupProject } = require("../lib/startup-project");
 
 const SMOKE = process.argv.includes("--smoke");
 const SMOKE_PREVIEW = (process.argv.find((arg) => arg.startsWith("--smoke-preview=")) || "").split("=")[1] || "";
+const smokeDataRoot = SMOKE ? fs.mkdtempSync(path.join(os.tmpdir(), "tyranoforge-smoke-")) : "";
+if (SMOKE) app.setPath("userData", smokeDataRoot);
+
+// パッケージ版では書き込みデータ (backups / export / 設定) を userData へ
+const DATA_ROOT = smokeDataRoot || (app.isPackaged
+  ? app.getPath("userData")
+  : path.join(__dirname, ".."));
+process.env.TYRANOFORGE_DATA_DIR = DATA_ROOT;
 
 // TyranoBuilder 本体と同様、プレビューの音声自動再生制限を無効化する。
 // これが有効だと Tyrano ランタイムが AudioContext のサスペンドで停止することがある。
@@ -26,10 +28,7 @@ app.commandLine.appendSwitch("site-per-process");
 let mainWindow = null;
 let serverInfo = null;
 
-if (SMOKE) {
-  // 検証モードは独立した userData を使い、稼働中のアプリとロック競合しない
-  app.setPath("userData", path.join(require("os").tmpdir(), "tyranoforge-smoke"));
-} else {
+if (!SMOKE) {
   const gotLock = app.requestSingleInstanceLock();
   if (!gotLock) {
     app.quit();
@@ -196,7 +195,14 @@ function createWindow() {
             }, 200);
           })
         `);
+        if (result.ready && process.env.TYRANOFORGE_SMOKE_EXPORT === "1") {
+          const exported = await mainWindow.webContents.executeJavaScript('api("/api/build", {method:"POST", body:JSON.stringify({target:"browser", zip:true})})');
+          result.exportReady = Boolean(exported.ok && exported.zipPath && fs.statSync(exported.zipPath).size > 0);
+        }
         console.log("SMOKE_RESULT " + JSON.stringify(result));
+        if (process.env.TYRANOFORGE_SMOKE_RESULT_FILE) {
+          fs.writeFileSync(process.env.TYRANOFORGE_SMOKE_RESULT_FILE, JSON.stringify(result));
+        }
         if (!SMOKE_PREVIEW) {
           app.exit(result.ready ? 0 : 1);
           return;
@@ -322,7 +328,27 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   try {
-    serverInfo = await startServer({ port: 0 });
+    const loadServer = () => require(path.join(__dirname, "..", "server.js"));
+    const serverModule = SMOKE ? loadServer() : await prepareStartupProject({
+      loadServer,
+      dataRoot: DATA_ROOT,
+      chooseDirectory: async () => {
+        const result = await dialog.showOpenDialog({
+          title: "編集するプロジェクトを選択",
+          message: "TyranoBuilder / TyranoScript のプロジェクトフォルダーを選んでください。",
+          buttonLabel: "このプロジェクトを開く",
+          properties: ["openDirectory"],
+        });
+        return result.canceled ? null : result.filePaths[0];
+      },
+      showInvalidProject: () => dialog.showMessageBox({
+        type: "info", title: "プロジェクトを確認してください",
+        message: "TyranoBuilder / TyranoScript のプロジェクトフォルダーを選んでください。",
+        buttons: ["選び直す"],
+      }),
+    });
+    if (!serverModule) { app.quit(); return; }
+    serverInfo = await serverModule.startServer({ port: 0 });
   } catch (error) {
     console.error("server start failed:", error.message || error);
     app.exit(1);
@@ -337,4 +363,8 @@ app.whenReady().then(async () => {
 
 app.on("window-all-closed", () => {
   app.quit();
+});
+
+app.on("quit", () => {
+  if (smokeDataRoot) fs.rmSync(smokeDataRoot, { recursive: true, force: true });
 });

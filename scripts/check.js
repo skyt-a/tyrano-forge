@@ -10,9 +10,10 @@ try {
   fs.cpSync(path.join(__dirname, "..", "examples", "blue-hour"), root, { recursive: true });
   fs.writeFileSync(path.join(root, "index.html"), "<!doctype html><title>Test fixture</title>");
   const env = { ...process.env, TYRANOFORGE_PROJECT: root, TYRANOFORGE_DATA_DIR: root };
-  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  for (const script of ["syntax", "smoke", "security"]) {
-    execFileSync(npm, ["run", script], { cwd: path.join(__dirname, ".."), env, stdio: "inherit" });
+  const npmCli = process.env.npm_execpath;
+  if (!npmCli) throw new Error("Run checks with npm run check");
+  for (const script of ["syntax", "smoke", "security", "startup"]) {
+    execFileSync(process.execPath, [npmCli, "run", script], { cwd: path.join(__dirname, ".."), env, stdio: "inherit" });
   }
 } finally {
   fs.rmSync(root, { recursive: true, force: true });
