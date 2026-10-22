@@ -499,6 +499,24 @@ function previewHtml(req, url) {
     .replace("</body>", `${bridge}\n    </body>`);
 }
 
+function readLayoutCharaName(element, charas = {}) {
+  const names = Object.keys(charas);
+  for (const name of names) {
+    if (element.classList.contains(name)) return name;
+  }
+  const appearance = element.getAttribute("data-tatie-appearance") || "";
+  const variant = element.getAttribute("data-tatie-variant") || "";
+  // Tatie's public runtime state is a fallback when a character class is absent.
+  // A shared appearance/variant is not enough to identify two visible characters.
+  const matches = names.filter(name => {
+    const chara = charas[name] || {};
+    return String(chara.is_show) !== "false" && Boolean(chara.tatie_variant) &&
+      (!appearance || chara.tatie_appearance === appearance) &&
+      (!variant || chara.tatie_variant === variant);
+  });
+  return matches.length === 1 ? matches[0] : "";
+}
+
 function previewBridgeScript() {
   return `
 (function () {
@@ -839,24 +857,7 @@ function previewBridgeScript() {
     };
   }
 
-  function readLayoutCharaName(element, charas) {
-    charas = charas || {};
-    var names = Object.keys(charas);
-    for (var i = 0; i < names.length; i += 1) {
-      if (element.classList.contains(names[i])) return names[i];
-    }
-    var appearance = element.getAttribute("data-tatie-appearance") || "";
-    var variant = element.getAttribute("data-tatie-variant") || "";
-    for (var j = 0; j < names.length; j += 1) {
-      var name = names[j];
-      var chara = charas[name] || {};
-      if (String(chara.is_show) === "false") continue;
-      if (appearance && chara.original_chara_appearance && chara.original_chara_appearance !== appearance) continue;
-      if (variant && chara.original_chara_variant && chara.original_chara_variant !== variant) continue;
-      if (chara.original_chara_variant || variant) return name;
-    }
-    return "";
-  }
+  ${readLayoutCharaName.toString()}
 
   function collectLayoutSnapshot() {
     var metrics = previewLayoutMetrics();
@@ -1838,4 +1839,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { startServer, config, previewBridgeScript };
+module.exports = { startServer, config, previewBridgeScript, readLayoutCharaName };

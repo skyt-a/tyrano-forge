@@ -12,7 +12,7 @@ try {
   const env = { ...process.env, TYRANOFORGE_PROJECT: root, TYRANOFORGE_DATA_DIR: root };
   const npmCli = process.env.npm_execpath;
   if (!npmCli) throw new Error("Run checks with npm run check");
-  for (const script of ["syntax", "smoke", "security", "startup"]) {
+  for (const script of ["syntax", "smoke", "security", "startup", "project"]) {
     execFileSync(process.execPath, [npmCli, "run", script], { cwd: path.join(__dirname, ".."), env, stdio: "inherit" });
   }
 } finally {

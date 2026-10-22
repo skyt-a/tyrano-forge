@@ -28,9 +28,11 @@ npm start
 ## 検証
 
 ```sh
-npm run check             # 一時的な自作データで構文・スモーク・アクセス制御・初回起動を検証
+npm run check             # 一時的な自作データで構文・スモーク・アクセス制御・初回起動・プロジェクト互換性を検証
 npm run security
 npm run startup
+npm run verify:tatie      # インストール済み TyranoBuilder を使って tatie の表示・配置保存を検証
+npm run project           # 標準/tatie のキャラクターと汎用ファイルの保持を検証
 npm run diagnostics       # 選択中のプロジェクトを診断
 npm run perf:editor       # 一時コピーでエディタの性能・IME・自動保存を検証
 ```
@@ -60,3 +62,7 @@ npm run docs:screenshots
 [Blue Hour](../examples/blue-hour) の背景とシナリオを使って、6枚のスクリーンショットを生成します。既存の制作中プロジェクトの本文・画像は使いません。`review.ks` の未定義ラベルは診断表示の例です。実行にはローカルの TyranoBuilder スケルトンが必要ですが、ランタイムや素材をリポジトリには追加しません。
 
 `docs:screenshots` は Electron 上で保存・アップロード・プレビュー・アクセス制御も検証します。
+
+## 立ち絵の依存ライブラリ
+
+`skyt-a/tyrano-tatie` の v0.2.0 を固定した実行時依存にしています。新規プロジェクトへの導入、既存プロジェクトへの追加、立ち絵の表示・切り替え・配置編集に使います。標準の `chara_new` / `chara_show` も扱います。

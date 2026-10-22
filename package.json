@@ -1,7 +1,7 @@
 {
   "name": "tyranoforge",
   "productName": "TyranoForge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "A TyranoScript visual novel editor compatible with TyranoBuilder projects.",
   "type": "commonjs",
@@ -13,7 +13,7 @@
     "dist": "node scripts/package-release.js",
     "start": "node server.js",
     "diagnostics": "node server.js --check",
-    "syntax": "npm run build:editor && node --check server.js && node --check electron/main.js && node --check lib/project-paths.js && node --check lib/project.js && node --check lib/ks-parser.js && node --check lib/studio.js && node --check lib/tyrano-tatie.js && node --check lib/http-security.js && node --check lib/startup-project.js && node --check scripts/startup-test.js && node --check scripts/package-release.js && node --check scripts/verify-package.js && node --check lib/navigation.js && node --check lib/window-security.js && node --check scripts/security-test.js && node --check scripts/capture-docs.js && node --check scripts/create-demo.js && node --check scripts/check.js && node --check public/js/schema.js && node --check public/js/core.js && node --check public/js/ks-highlight.js && node --check public/js/ks-highlight-worker.js && node --check public/js/editor.js && node --check public/js/preview.js && node --check public/js/panels.js && node --check public/js/studio.js && node --check scripts/smoke-test.js && node --check scripts/editor-perf-test.js && node -e \"const{previewBridgeScript}=require('./server.js');new Function(previewBridgeScript());console.log('preview bridge syntax OK')\"",
+    "syntax": "npm run build:editor && node --check server.js && node --check electron/main.js && node --check lib/project-paths.js && node --check lib/project.js && node --check lib/ks-parser.js && node --check lib/studio.js && node --check lib/tyrano-tatie.js && node --check lib/http-security.js && node --check lib/startup-project.js && node --check scripts/startup-test.js && node --check scripts/package-release.js && node --check scripts/verify-package.js && node --check lib/navigation.js && node --check lib/window-security.js && node --check scripts/security-test.js && node --check scripts/capture-docs.js && node --check scripts/create-demo.js && node --check scripts/tatie-preview-test.js && node --check scripts/project-test.js && node --check scripts/check.js && node --check public/js/schema.js && node --check public/js/core.js && node --check public/js/ks-highlight.js && node --check public/js/ks-highlight-worker.js && node --check public/js/editor.js && node --check public/js/preview.js && node --check public/js/panels.js && node --check public/js/studio.js && node --check scripts/smoke-test.js && node --check scripts/editor-perf-test.js && node -e \"const{previewBridgeScript}=require('./server.js');new Function(previewBridgeScript());console.log('preview bridge syntax OK')\"",
     "smoke": "node scripts/smoke-test.js",
     "perf:editor": "node scripts/editor-perf-test.js",
     "check": "node scripts/check.js",
@@ -22,7 +22,9 @@
     "dist:mac": "node scripts/package-release.js darwin arm64",
     "dist:win": "node scripts/package-release.js win32 x64",
     "startup": "node scripts/startup-test.js",
-    "verify:package": "node scripts/verify-package.js"
+    "verify:package": "node scripts/verify-package.js",
+    "project": "node scripts/project-test.js",
+    "verify:tatie": "electron scripts/tatie-preview-test.js"
   },
   "engines": {
     "node": ">=22.12.0"
