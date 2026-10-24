@@ -16,6 +16,14 @@ Report vulnerabilities privately through [GitHub's vulnerability reporting form]
 
 These controls protect the editor from other web origins and preview scripts. Programs already running with the same OS user's privileges can access that user's files and are outside this boundary. A game preview executes the project's JavaScript; only open projects and plugins you trust.
 
+## Runtimes
+
+Development, `npm start`, and CI use the host Node.js. Supported versions are 22.23.4 and later 22.x, 24.22.1 and later 24.x, and 26.12.1 and later 26.x. Those releases fix CVE-2026-111497, an out-of-bounds write in the Brotli decoder used by `node:zlib` and Node's `fetch()`. CI installs Node.js 22.23.4.
+
+The packaged editor and desktop game exports ship Electron 43.8.3, which bundles Node.js 24.22.0. As of 2026-10-24 the newest stable Electron releases (43.8.3, 44.9.3, and 45.0.0) still bundle Node.js 24.22.0. Node.js 24.22.1 is present only in Electron 46 pre-releases. Keep the `electron` dependency on 43.8.3 until a stable release lists Node.js 24.22.1 or newer, then bump that dependency and the fallback version in `lib/studio.js` together.
+
+The editor HTTP server reads request bodies as raw bytes. Application code does not call `node:zlib` or Node's `fetch()`. Renderer `fetch()` uses Chromium's network stack. This repository does not include PHP.
+
 ## Verification
 
 `npm run check` includes HTTP regression tests for rejected hosts/origins, missing and expired tokens, preview API isolation, traversal/symlinks, data-only settings parsing, and navigation validation. Tests use temporary synthetic projects.

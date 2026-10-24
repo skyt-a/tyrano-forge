@@ -1,6 +1,6 @@
 # 開発
 
-Node.js 22.12 以上が必要です。
+Node.js 22.23.4、24.22.1、または 26.12.1 以降が必要です。これらは 2026年10月21日のセキュリティリリース（CVE-2026-111497 を含む）以降の版です。
 
 ```sh
 git clone https://github.com/skyt-a/tyrano-forge.git
